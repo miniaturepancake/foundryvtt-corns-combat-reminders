@@ -27,6 +27,8 @@ and clicks Configure Reminders. In the window, click Add Reminder to get a row,
 type the reminder text, and pick a trigger from the dropdown. Add as many as you
 want, then Save. Two rows can share a trigger.
 
+![The Configure Reminders window with two example reminders](https://raw.githubusercontent.com/miniaturepancake/foundryvtt-corns-combat-reminders/main/assets/settings.png)
+
 Each row has a few controls. The power toggle on the left silences a reminder
 without deleting it, so a saved-but-off reminder never posts. The secret-agent
 toggle on the right whispers that reminder privately to you instead of posting
