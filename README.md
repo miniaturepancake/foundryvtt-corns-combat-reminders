@@ -8,8 +8,9 @@ dice. It only reminds.
 ## Requirements
 
 - Foundry VTT v13 or later (verified on v14)
-- D&D 5e system v4.0.0 or later (the roll and damage triggers use system hooks
-  introduced in 4.x; the combat-flow triggers work without them)
+- D&D 5e system v5.0.0 or later, verified on v5.3.3 (the roll and damage
+  triggers read the activity-based system hook signatures stabilized in 5.x;
+  the combat-flow triggers work without them)
 
 ## Install
 
@@ -25,6 +26,12 @@ Each player opens Configure Settings, finds the Corn's Combat Reminders section,
 and clicks Configure Reminders. In the window, click Add Reminder to get a row,
 type the reminder text, and pick a trigger from the dropdown. Add as many as you
 want, then Save. Two rows can share a trigger.
+
+Each row has a few controls. The power toggle on the left silences a reminder
+without deleting it, so a saved-but-off reminder never posts. The secret-agent
+toggle on the right whispers that reminder privately to you instead of posting
+it to public chat. The up and down chevrons reorder rows. Pressing Enter in a
+text field saves and closes, the same as clicking Save.
 
 Reminders are stored per browser for the logged-in user, so a player configures
 their own list and it does not affect anyone else.
@@ -55,10 +62,16 @@ Happens to you
 - When you fall below half HP
 - When you are healed
 
+Rest
+- After a short rest
+- After a long rest
+
 ## Notes and limits
 
-- A reminder posts from the acting character's owning client, so it fires once.
-  A character with no logged-in player owner posts nothing.
+- A reminder posts from one client only, so it fires once. The acting
+  character's first active player owner posts. If no player owner is logged in
+  (a GM-owned actor or NPC, or a solo GM session), the first active GM posts
+  instead, using that GM's own reminder list.
 - The list is tied to the user, not the character. A player running two
   characters gets the same reminders on both.
 - "When you are damaged" keys off the system's HP-change hooks, so it covers

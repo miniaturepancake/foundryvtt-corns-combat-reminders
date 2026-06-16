@@ -17,7 +17,39 @@
 }
 
 .combat-reminders-config .cr-trigger {
-  flex: 0 0 220px;
+  flex: 0 0 200px;
+}
+
+.combat-reminders-config .cr-order {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.combat-reminders-config .cr-move {
+  width: 24px;
+  height: 15px;
+  line-height: 1;
+  padding: 0;
+  font-size: 0.7em;
+}
+
+.combat-reminders-config .cr-toggle {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.combat-reminders-config .cr-toggle input {
+  margin: 0;
+}
+
+.combat-reminders-config .cr-toggle i {
+  opacity: 0.65;
 }
 
 .combat-reminders-config .cr-text {
@@ -49,4 +81,21 @@
 .combat-reminders-config .cr-save {
   flex: 0 0 auto;
   width: auto;
+}
+
+/* The reminder as it appears in chat: a bell-marked callout with an accent
+   border, so it reads as distinct from ordinary chat messages. */
+.combat-reminder-message {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 4px 8px;
+  border-left: 3px solid var(--color-border-highlight, #c9a227);
+  background: rgba(201, 162, 39, 0.08);
+  border-radius: 2px;
+}
+
+.combat-reminder-message i {
+  flex: 0 0 auto;
+  color: var(--color-border-highlight, #c9a227);
 }

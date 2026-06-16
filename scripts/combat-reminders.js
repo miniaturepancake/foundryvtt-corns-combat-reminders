@@ -45,7 +45,11 @@ const TRIGGERS = [
   { id: "damaged",       label: "When you are damaged",         group: "Happens to you", event: "damaged" },
   { id: "droppedToZero", label: "When you drop to 0 HP",        group: "Happens to you", event: "damaged", test: (c) => c.newHP === 0 && c.oldHP > 0 },
   { id: "bloodied",      label: "When you fall below half HP",  group: "Happens to you", event: "damaged", test: (c) => c.maxHP > 0 && c.newHP < c.maxHP / 2 && c.oldHP >= c.maxHP / 2 },
-  { id: "healed",        label: "When you are healed",          group: "Happens to you", event: "healed" }
+  { id: "healed",        label: "When you are healed",          group: "Happens to you", event: "healed" },
+
+  // Rest (both share the rest event; the test picks short vs long off result.type)
+  { id: "shortRest",     label: "After a short rest",           group: "Rest", event: "rest", test: (c) => c.type === "short" },
+  { id: "longRest",      label: "After a long rest",            group: "Rest", event: "rest", test: (c) => c.type === "long" }
 ];
 
 const DEFAULT_TRIGGER = TRIGGERS[0].id;
@@ -71,26 +75,39 @@ function naturalD20(roll) {
   return die ? die.total : null;
 }
 
-// True only on the one client that should post for this actor: the first active
-// player-owner (sorted by id so every client agrees). NPCs with no player owner
-// post nothing.
+// True only on the one client that should post for this actor, so each reminder
+// fires once. Prefer the first active non-GM player owner (sorted by id so every
+// client agrees), so a player's own client posts. If no player owner is active
+// (a GM-owned actor or NPC, or a solo GM session), fall back to the first active
+// GM. The GM is only a fallback, so it never double-posts on top of a player.
 function isAnnouncer(actor) {
-  const owners = game.users
+  const sortById = (a, b) => a.id.localeCompare(b.id);
+
+  const playerOwners = game.users
     .filter((u) => u.active && !u.isGM && actor.testUserPermission(u, "OWNER"))
-    .sort((a, b) => a.id.localeCompare(b.id));
-  return owners.length > 0 && owners[0].id === game.user.id;
+    .sort(sortById);
+  if (playerOwners.length) return playerOwners[0].id === game.user.id;
+
+  const gms = game.users.filter((u) => u.active && u.isGM).sort(sortById);
+  return gms.length > 0 && gms[0].id === game.user.id;
 }
 
 function currentUserReminders() {
   return game.settings.get(MODULE_ID, "reminders") ?? [];
 }
 
-function postReminder(actor, text) {
+function postReminder(actor, text, whisper = false) {
   if (!text || !text.trim()) return;
-  ChatMessage.create({
+  const data = {
+    // alias is a plain-text field; Foundry escapes it when rendering the
+    // message header, so it is not run through esc() here (that would
+    // double-encode names containing & or '). Only content is raw HTML.
     speaker: { alias: `Reminder, ${actor.name}` },
-    content: `<div class="combat-reminder-message">${esc(text)}</div>`
-  });
+    content: `<div class="combat-reminder-message"><i class="fas fa-bell"></i><span>${esc(text)}</span></div>`
+  };
+  // Whisper to self: only the client that posts (this user) sees it.
+  if (whisper) data.whisper = [game.user.id];
+  ChatMessage.create(data);
 }
 
 // Central dispatch: for an internal event on an actor, post this user's matching
@@ -98,10 +115,11 @@ function postReminder(actor, text) {
 function emit(event, actor, ctx = {}) {
   if (!actor || !isAnnouncer(actor)) return;
   for (const r of currentUserReminders()) {
+    if (r.enabled === false) continue; // disabled rows are saved but never post
     const def = TRIGGERS.find((t) => t.id === r.trigger);
     if (!def || def.event !== event) continue;
     if (def.test && !def.test(ctx)) continue;
-    postReminder(actor, r.text);
+    postReminder(actor, r.text, r.whisper === true);
   }
 }
 
@@ -162,13 +180,25 @@ Hooks.on("dnd5e.rollInitiative", (actor) => {
 // Happens to you (dnd5e HP-change hooks; fire on any HP change)
 Hooks.on("dnd5e.damageActor", (actor, changes) => {
   const newHP = foundry.utils.getProperty(actor, "system.attributes.hp.value") ?? 0;
-  const delta = changes?.hp ?? changes?.total ?? 0; // negative for damage
+  // changes.hp is the change to real HP (negative for damage). Damage fully
+  // absorbed by temp HP leaves changes.hp at 0, so oldHP === newHP and the
+  // drop-to-0 / below-half tests correctly do not fire; the plain "damaged"
+  // trigger still posts. This is intended, not a missing case.
+  const delta = changes?.hp ?? changes?.total ?? 0;
   const oldHP = newHP - delta;
-  const maxHP = foundry.utils.getProperty(actor, "system.attributes.hp.max") ?? 0;
+  // effectiveMax accounts for tempmax modifiers; fall back to max.
+  const maxHP = foundry.utils.getProperty(actor, "system.attributes.hp.effectiveMax")
+    ?? foundry.utils.getProperty(actor, "system.attributes.hp.max") ?? 0;
   emit("damaged", actor, { oldHP, newHP, maxHP });
 });
 Hooks.on("dnd5e.healActor", (actor) => {
   emit("healed", actor);
+});
+
+// Rest (dnd5e fires this once after a rest completes; result.type is "short" or
+// "long", so one emitter serves both rest triggers)
+Hooks.on("dnd5e.restCompleted", (actor, result) => {
+  emit("rest", actor, { type: result?.type });
 });
 
 // --------------------------------------------------------------------------
@@ -188,9 +218,19 @@ class ReminderConfig extends ApplicationV2 {
     classes: ["combat-reminders-config"],
     window: { title: "Corn's Combat Reminders", icon: "fas fa-bell", resizable: true },
     position: { width: 640, height: "auto" },
+    // A form handler so pressing Enter in a text field submits cleanly (save and
+    // close) instead of triggering a handler-less native submit. submitOnChange
+    // is off so editing a field does not persist until the user commits.
+    form: {
+      handler: ReminderConfig.#onSubmit,
+      submitOnChange: false,
+      closeOnSubmit: false
+    },
     actions: {
       addRow: ReminderConfig.#onAddRow,
       deleteRow: ReminderConfig.#onDeleteRow,
+      moveUp: ReminderConfig.#onMoveUp,
+      moveDown: ReminderConfig.#onMoveDown,
       save: ReminderConfig.#onSave
     }
   };
@@ -220,9 +260,21 @@ class ReminderConfig extends ApplicationV2 {
         const def = TRIGGERS.find((t) => t.id === r.trigger);
         return `
         <div class="cr-row" data-index="${i}">
+          <div class="cr-order">
+            <button type="button" class="cr-move" data-action="moveUp" data-index="${i}" title="Move up"><i class="fas fa-chevron-up"></i></button>
+            <button type="button" class="cr-move" data-action="moveDown" data-index="${i}" title="Move down"><i class="fas fa-chevron-down"></i></button>
+          </div>
+          <label class="cr-toggle" title="Enabled. Uncheck to silence this reminder without deleting it.">
+            <input type="checkbox" class="cr-enabled" ${r.enabled === false ? "" : "checked"} />
+            <i class="fas fa-power-off"></i>
+          </label>
           <select name="trigger-${i}" class="cr-trigger">${ReminderConfig.#triggerOptions(r.trigger)}</select>
           <input type="text" name="text-${i}" class="cr-text" value="${esc(r.text)}" placeholder="Reminder text" />
           ${ReminderConfig.#renderParamField(def, r, i)}
+          <label class="cr-toggle" title="Whisper privately to you instead of posting to public chat.">
+            <input type="checkbox" class="cr-whisper" ${r.whisper ? "checked" : ""} />
+            <i class="fas fa-user-secret"></i>
+          </label>
           <button type="button" class="cr-delete" data-action="deleteRow" data-index="${i}" title="Delete reminder">
             <i class="fas fa-trash"></i>
           </button>
@@ -252,13 +304,15 @@ class ReminderConfig extends ApplicationV2 {
     if (!root) return;
     this.reminders = [...root.querySelectorAll(".cr-row")].map((row) => ({
       trigger: row.querySelector(".cr-trigger")?.value ?? DEFAULT_TRIGGER,
-      text: row.querySelector(".cr-text")?.value ?? ""
+      text: row.querySelector(".cr-text")?.value ?? "",
+      enabled: row.querySelector(".cr-enabled")?.checked ?? true,
+      whisper: row.querySelector(".cr-whisper")?.checked ?? false
     }));
   }
 
   static #onAddRow() {
     this.#syncFromDOM();
-    this.reminders.push({ trigger: DEFAULT_TRIGGER, text: "" });
+    this.reminders.push({ trigger: DEFAULT_TRIGGER, text: "", enabled: true, whisper: false });
     this.render();
   }
 
@@ -268,11 +322,38 @@ class ReminderConfig extends ApplicationV2 {
     this.render();
   }
 
-  static async #onSave() {
+  static #onMoveUp(event, target) {
+    this.#syncFromDOM();
+    const i = Number(target.dataset.index);
+    if (i <= 0) return;
+    [this.reminders[i - 1], this.reminders[i]] = [this.reminders[i], this.reminders[i - 1]];
+    this.render();
+  }
+
+  static #onMoveDown(event, target) {
+    this.#syncFromDOM();
+    const i = Number(target.dataset.index);
+    if (i >= this.reminders.length - 1) return;
+    [this.reminders[i + 1], this.reminders[i]] = [this.reminders[i], this.reminders[i + 1]];
+    this.render();
+  }
+
+  // Persist the current rows, dropping any with empty text.
+  async #persist() {
     this.#syncFromDOM();
     const clean = this.reminders.filter((r) => r.text && r.text.trim().length);
     await game.settings.set(MODULE_ID, "reminders", clean);
     ui.notifications.info("Corn's Combat Reminders saved.");
+  }
+
+  static async #onSave() {
+    await this.#persist();
+    this.close();
+  }
+
+  // Form submit (e.g. Enter in a text field). Saves and closes, matching Save.
+  static async #onSubmit() {
+    await this.#persist();
     this.close();
   }
 }
