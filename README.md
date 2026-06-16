@@ -2,8 +2,8 @@
 
 A Foundry VTT module for the D&D 5e system. Each player writes their own reminder
 text and chooses when it fires. When that moment arrives in play, the reminder
-posts to chat for the character they own. No class detection, no automation, no
-dice. It only reminds.
+posts to chat for the character they own. You write the text and pick the trigger,
+and the module shows it back to you at that point in play.
 
 ## Requirements
 
