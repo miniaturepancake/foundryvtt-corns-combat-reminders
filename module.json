@@ -1,0 +1,39 @@
+{
+  "id": "corns-combat-reminders",
+  "title": "Corn's Combat Reminders",
+  "description": "Player-authored reminders that post to chat on combat and roll events. Each player writes their own reminder text and picks when it fires.",
+  "version": "1.0.0",
+  "compatibility": {
+    "minimum": "13",
+    "verified": "14"
+  },
+  "authors": [
+    {
+      "name": "Dip",
+      "url": "https://github.com/miniaturepancake"
+    }
+  ],
+  "esmodules": [
+    "scripts/combat-reminders.js"
+  ],
+  "styles": [
+    "styles/combat-reminders.css"
+  ],
+  "relationships": {
+    "systems": [
+      {
+        "id": "dnd5e",
+        "type": "system",
+        "compatibility": {
+          "minimum": "4.0.0"
+        }
+      }
+    ]
+  },
+  "url": "https://github.com/miniaturepancake/foundryvtt-corns-combat-reminders",
+  "manifest": "https://github.com/miniaturepancake/foundryvtt-corns-combat-reminders/releases/latest/download/module.json",
+  "download": "https://github.com/miniaturepancake/foundryvtt-corns-combat-reminders/releases/latest/download/module.zip",
+  "readme": "https://github.com/miniaturepancake/foundryvtt-corns-combat-reminders/blob/main/README.md",
+  "license": "MIT",
+  "bugs": "https://github.com/miniaturepancake/foundryvtt-corns-combat-reminders/issues"
+}

@@ -1,0 +1,52 @@
+.combat-reminders-config .cr-intro {
+  margin: 0 0 8px;
+  font-size: 0.9em;
+  opacity: 0.8;
+}
+
+.combat-reminders-config .cr-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.combat-reminders-config .cr-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.combat-reminders-config .cr-trigger {
+  flex: 0 0 220px;
+}
+
+.combat-reminders-config .cr-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.combat-reminders-config .cr-delete {
+  flex: 0 0 auto;
+  width: 30px;
+  line-height: 1;
+}
+
+.combat-reminders-config .cr-empty {
+  font-style: italic;
+  opacity: 0.7;
+}
+
+.combat-reminders-config .cr-controls {
+  margin-top: 8px;
+}
+
+.combat-reminders-config .cr-footer {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.combat-reminders-config .cr-save {
+  flex: 0 0 auto;
+  width: auto;
+}
