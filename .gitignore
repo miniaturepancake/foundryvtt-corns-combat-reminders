@@ -1,0 +1,7 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+module.zip
+module.tmp.json

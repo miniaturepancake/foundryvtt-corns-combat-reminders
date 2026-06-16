@@ -30,7 +30,7 @@ jobs:
           mv module.tmp.json module.json
 
       - name: Build module.zip
-        run: zip -r module.zip module.json scripts styles README.md LICENSE
+        run: zip -r module.zip module.json scripts styles assets README.md LICENSE -x "*.DS_Store"
 
       - name: Attach assets to release
         uses: softprops/action-gh-release@v2
