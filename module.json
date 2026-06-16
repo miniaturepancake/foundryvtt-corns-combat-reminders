@@ -2,7 +2,7 @@
   "id": "corns-combat-reminders",
   "title": "Corn's Combat Reminders",
   "description": "Player-authored reminders that post to chat on combat and roll events. Each player writes their own reminder text and picks when it fires.",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "compatibility": {
     "minimum": "13",
     "verified": "14"
