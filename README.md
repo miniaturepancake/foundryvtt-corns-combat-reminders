@@ -1,9 +1,13 @@
 # Corn's Combat Reminders
 
-A Foundry VTT module for the D&D 5e system. Each player writes their own reminder
-text and chooses when it fires. When that moment arrives in play, the reminder
-posts to chat for the character they own. You write the text and pick the trigger,
-and the module shows it back to you at that point in play.
+Players forget the fiddly things in combat. Sneak Attack on the right turn, a
+Bardic Inspiration die you meant to hand out, the rider on a magic item, a saving
+throw bonus that only applies sometimes. Corn's Combat Reminders is a Foundry VTT
+module for D&D 5e that lets each player write their own reminders and pick the
+exact moment each one fires, like your attack roll, the top of your turn, dropping
+below half HP, or finishing a long rest. When that moment arrives, the reminder
+posts to chat for the character you own, so the prompt reaches you in play instead
+of living on a sticky note next to your monitor.
 
 ## Requirements
 
@@ -22,10 +26,14 @@ https://github.com/miniaturepancake/foundryvtt-corns-combat-reminders/releases/l
 
 ## Use
 
-Each player opens Configure Settings, finds the Corn's Combat Reminders section,
-and clicks Configure Reminders. In the window, click Add Reminder to get a row,
-type the reminder text, and pick a trigger from the dropdown. Add as many as you
-want, then Save. Two rows can share a trigger.
+Each player sets up their own list:
+
+1. Open Configure Settings and find the Corn's Combat Reminders section.
+2. Click Configure Reminders to open the window.
+3. Click Add Reminder to get a new row.
+4. Type the reminder text and pick a trigger from the dropdown.
+5. Repeat for as many reminders as you want. Two rows can share a trigger.
+6. Click Save.
 
 ![The Configure Reminders window with two example reminders](https://raw.githubusercontent.com/miniaturepancake/foundryvtt-corns-combat-reminders/main/assets/settings.png)
 
