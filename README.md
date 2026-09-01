@@ -11,7 +11,7 @@ of living on a sticky note next to your monitor.
 
 ## Requirements
 
-- Foundry VTT v13 or later (verified on v14)
+- Foundry VTT v13 or later (verified on v14.367)
 - D&D 5e system v5.0.0 or later, verified on v5.3.3 (the roll and damage
   triggers read the activity-based system hook signatures stabilized in 5.x;
   the combat-flow triggers work without them)

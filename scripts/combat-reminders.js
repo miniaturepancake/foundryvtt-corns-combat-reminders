@@ -103,11 +103,11 @@ function postReminder(actor, text, whisper = false) {
     // message header, so it is not run through esc() here (that would
     // double-encode names containing & or '). Only content is raw HTML.
     speaker: { alias: `Reminder, ${actor.name}` },
-    content: `<div class="combat-reminder-message"><i class="fas fa-bell"></i><span>${esc(text)}</span></div>`
+    content: `<div class="combat-reminder-message"><i class="fa-solid fa-bell"></i><span>${esc(text)}</span></div>`
   };
   // Whisper to self: only the client that posts (this user) sees it.
   if (whisper) data.whisper = [game.user.id];
-  ChatMessage.create(data);
+  ChatMessage.implementation.create(data);
 }
 
 // Central dispatch: for an internal event on an actor, post this user's matching
@@ -216,7 +216,7 @@ class ReminderConfig extends ApplicationV2 {
     id: "combat-reminders-config",
     tag: "form",
     classes: ["combat-reminders-config"],
-    window: { title: "Corn's Combat Reminders", icon: "fas fa-bell", resizable: true },
+    window: { title: "Corn's Combat Reminders", icon: "fa-solid fa-bell", resizable: true },
     position: { width: 640, height: "auto" },
     // A form handler so pressing Enter in a text field submits cleanly (save and
     // close) instead of triggering a handler-less native submit. submitOnChange
@@ -261,22 +261,22 @@ class ReminderConfig extends ApplicationV2 {
         return `
         <div class="cr-row" data-index="${i}">
           <div class="cr-order">
-            <button type="button" class="cr-move" data-action="moveUp" data-index="${i}" title="Move up"><i class="fas fa-chevron-up"></i></button>
-            <button type="button" class="cr-move" data-action="moveDown" data-index="${i}" title="Move down"><i class="fas fa-chevron-down"></i></button>
+            <button type="button" class="cr-move" data-action="moveUp" data-index="${i}" title="Move up"><i class="fa-solid fa-chevron-up"></i></button>
+            <button type="button" class="cr-move" data-action="moveDown" data-index="${i}" title="Move down"><i class="fa-solid fa-chevron-down"></i></button>
           </div>
           <label class="cr-toggle" title="Enabled. Uncheck to silence this reminder without deleting it.">
             <input type="checkbox" class="cr-enabled" ${r.enabled === false ? "" : "checked"} />
-            <i class="fas fa-power-off"></i>
+            <i class="fa-solid fa-power-off"></i>
           </label>
           <select name="trigger-${i}" class="cr-trigger">${ReminderConfig.#triggerOptions(r.trigger)}</select>
           <input type="text" name="text-${i}" class="cr-text" value="${esc(r.text)}" placeholder="Reminder text" />
           ${ReminderConfig.#renderParamField(def, r, i)}
           <label class="cr-toggle" title="Whisper privately to you instead of posting to public chat.">
             <input type="checkbox" class="cr-whisper" ${r.whisper ? "checked" : ""} />
-            <i class="fas fa-user-secret"></i>
+            <i class="fa-solid fa-user-secret"></i>
           </label>
           <button type="button" class="cr-delete" data-action="deleteRow" data-index="${i}" title="Delete reminder">
-            <i class="fas fa-trash"></i>
+            <i class="fa-solid fa-trash"></i>
           </button>
         </div>`;
       })
@@ -286,10 +286,10 @@ class ReminderConfig extends ApplicationV2 {
       <p class="cr-intro">These reminders post to chat for the character you own. Add a row, type the text, and choose when it fires.</p>
       <div class="cr-rows">${rows || `<p class="cr-empty">No reminders yet. Click Add Reminder to start.</p>`}</div>
       <div class="cr-controls">
-        <button type="button" data-action="addRow"><i class="fas fa-plus"></i> Add Reminder</button>
+        <button type="button" data-action="addRow"><i class="fa-solid fa-plus"></i> Add Reminder</button>
       </div>
       <footer class="cr-footer">
-        <button type="button" class="cr-save" data-action="save"><i class="fas fa-save"></i> Save</button>
+        <button type="button" class="cr-save" data-action="save"><i class="fa-solid fa-floppy-disk"></i> Save</button>
       </footer>`;
   }
 
@@ -373,7 +373,7 @@ Hooks.once("init", () => {
     name: "Corn's Combat Reminders",
     label: "Configure Reminders",
     hint: "Add your own reminders and choose when each one fires.",
-    icon: "fas fa-bell",
+    icon: "fa-solid fa-bell",
     type: ReminderConfig,
     restricted: false
   });
