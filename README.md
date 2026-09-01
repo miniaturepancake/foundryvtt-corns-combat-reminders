@@ -44,7 +44,10 @@ it to public chat. The up and down chevrons reorder rows. Pressing Enter in a
 text field saves and closes, the same as clicking Save.
 
 Reminders are stored per browser for the logged-in user, so a player configures
-their own list and it does not affect anyone else.
+their own list and it does not affect anyone else. Because the list lives in the
+browser rather than in the world, it does not travel to another browser or
+machine, and clearing site data clears it. Worth knowing if you play from more
+than one computer.
 
 ## Triggers
 
@@ -78,10 +81,11 @@ Rest
 
 ## Notes and limits
 
-- A reminder posts from one client only, so it fires once. The acting
-  character's first active player owner posts. If no player owner is logged in
-  (a GM-owned actor or NPC, or a solo GM session), the first active GM posts
-  instead, using that GM's own reminder list.
+- A reminder posts from one client only, so it fires once. Of the acting
+  character's logged-in player owners, every client agrees on the same one, and
+  that client is the one that posts. If no player owner is logged in (a GM-owned
+  actor or NPC, or a solo GM session), the first active GM posts instead, using
+  that GM's own reminder list.
 - The list is tied to the user, not the character. A player running two
   characters gets the same reminders on both.
 - "When you are damaged" keys off the system's HP-change hooks, so it covers
